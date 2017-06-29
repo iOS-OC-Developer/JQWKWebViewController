@@ -18,6 +18,8 @@
 
 @property (nonatomic, weak) UIButton *closeItem;
 
+@property (nonatomic, weak) UIButton *refreshItem;
+
 @property (nonatomic, strong) WKWebView *JQWebView;
 
 @property (nonatomic, strong) UIProgressView *progressView;
@@ -30,8 +32,7 @@
     [super viewDidLoad];
     [self setnavigation];
     [self createWebViewNavigation];
-    
-    [self initJQWebView];    
+    [self initJQWebView];
 }
 
 // setUpJQWebView
@@ -71,6 +72,13 @@
     self.closeItem = closeItem;
     UIBarButtonItem *leftItem2 = [[UIBarButtonItem alloc] initWithCustomView:closeItem];
     self.navigationItem.leftBarButtonItems = @[leftItem1,leftItem2];
+    
+    UIButton *refreshItem = [[UIButton alloc]initWithFrame:CGRectMake(0, 0, 44, 44)];
+    [refreshItem setImage:[UIImage imageNamed:@"Refresh"] forState:UIControlStateNormal];
+    [refreshItem addTarget:self action:@selector(clickedRefreshItem:) forControlEvents:UIControlEventTouchUpInside];
+    self.refreshItem = refreshItem;
+    UIBarButtonItem *rightItem = [[UIBarButtonItem alloc] initWithCustomView:refreshItem];
+    self.navigationItem.rightBarButtonItems = @[rightItem];
 }
 
 - (void)setnavigation
@@ -84,7 +92,8 @@
 }
 
 #pragma mark - clickedBackItem
-- (void)clickedBackItem:(UIBarButtonItem *)btn{
+- (void)clickedBackItem:(UIBarButtonItem *)btn
+{
     if (self.JQWebView.canGoBack) {
         [self.JQWebView goBack];
         self.closeItem.hidden = NO;
@@ -94,8 +103,18 @@
 }
 
 #pragma mark - clickedCloseItem
-- (void)clickedCloseItem:(UIButton *)btn{
+- (void)clickedCloseItem:(UIButton *)btn
+{
     [self.navigationController popViewControllerAnimated:YES];
+}
+
+#pragma mark - clickedRefreshItem
+- (void)clickedRefreshItem:(UIButton *)btn
+{
+    NSString *str = [NSString stringWithFormat:@"http://%@",self.h5_urlString];
+    NSString *url = [self encodeToPercentEscapeString:str];
+    
+    [_JQWebView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:url]]];
 }
 
 #pragma mark - url编码
@@ -135,6 +154,7 @@
     
     //    NSLog(@"%s", __FUNCTION__);
     NSLog(@"加载成功");
+    self.refreshItem.hidden = YES;
     [_progressView setProgress:0.0 animated:false];
 }
 
@@ -149,6 +169,7 @@
     
     //    NSLog(@"%s", __FUNCTION__);
     NSLog(@"加载失败");
+    self.refreshItem.hidden = NO;
     //    [self webViewReloadView];
 }
 
