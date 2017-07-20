@@ -123,6 +123,17 @@
     return [input stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet characterSetWithCharactersInString:@"`#%^{}\"[]|\\<> "].invertedSet];
 }
 
+- (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
+{
+    NSString *urlString = navigationAction.request.URL.absoluteString;
+    if ([urlString containsString:@"about"]){
+        [[[UIAlertView alloc]initWithTitle:@"关于我" message:@"关于小韩哥" delegate:nil cancelButtonTitle:@"好的" otherButtonTitles:nil, nil]show];
+        decisionHandler(WKNavigationActionPolicyCancel);
+        return;
+    }
+    decisionHandler(WKNavigationActionPolicyAllow);
+}
+
 //WKNavigationDelegate
 /**
  *  页面开始加载时调用
