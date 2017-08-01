@@ -33,6 +33,8 @@
     [self setnavigation];
     [self createWebViewNavigation];
     [self initJQWebView];
+    
+    [_JQWebView.scrollView addObserver:self forKeyPath:@"contentSize" options:NSKeyValueObservingOptionNew context:nil];
 }
 
 // setUpJQWebView
@@ -208,12 +210,13 @@
                 [self.progressView setProgress:0.0f animated:NO];
             }];
         }
-    }
-    else {
+    } else if (object == _JQWebView.scrollView && [keyPath isEqual:@"contentSize"]) {
+        UIScrollView *scrollView = _JQWebView.scrollView;
+        NSLog(@"New contentSize: %f x %f", scrollView.contentSize.width, scrollView.contentSize.height);
+    } else {
         [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
     }
 }
-
 
 - (void)returnToVC:(UIButton*)btn {
     [self.navigationController popViewControllerAnimated:YES];
@@ -222,6 +225,7 @@
 - (void)dealloc
 {
     if (_JQWebView) {
+        [_JQWebView.scrollView removeObserver:self forKeyPath:@"contentSize" context:nil];
         [_JQWebView removeObserver:self forKeyPath:@"estimatedProgress"];
         [_JQWebView setNavigationDelegate:nil];
         [_JQWebView setUIDelegate:nil];
