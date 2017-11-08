@@ -11,6 +11,7 @@
 
 #define SCREEN_WIDTH ([[UIScreen mainScreen] bounds].size.width)
 #define SCREEN_HEIGHT ([[UIScreen mainScreen] bounds].size.height)
+#define iPhoneX ([UIScreen instancesRespondToSelector:@selector(currentMode)] ? CGSizeEqualToSize(CGSizeMake(1125, 2436), [[UIScreen mainScreen] currentMode].size) : NO)
 
 @interface JQWKWebViewController ()<WKUIDelegate,WKNavigationDelegate>
 
@@ -30,6 +31,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.view.backgroundColor = [UIColor whiteColor];
     [self setnavigation];
     [self createWebViewNavigation];
     [self initJQWebView];
@@ -40,12 +42,20 @@
 // setUpJQWebView
 - (void)initJQWebView
 {
-    _JQWebView = [[WKWebView alloc] initWithFrame:CGRectMake(0, 64, SCREEN_WIDTH, SCREEN_HEIGHT-64)];
+    if (iPhoneX) {
+        _JQWebView = [[WKWebView alloc] initWithFrame:CGRectMake(0, 88, SCREEN_WIDTH, SCREEN_HEIGHT-88-34)];
+    } else {
+        _JQWebView = [[WKWebView alloc] initWithFrame:CGRectMake(0, 64, SCREEN_WIDTH, SCREEN_HEIGHT-64)];
+    }
     _JQWebView.UIDelegate = self;
     _JQWebView.navigationDelegate = self;
     [self.view addSubview:_JQWebView];
     
-    _progressView = [[UIProgressView alloc] initWithFrame:CGRectMake(0, 64, self.view.frame.size.width, 2)];
+    if (iPhoneX) {
+        _progressView = [[UIProgressView alloc] initWithFrame:CGRectMake(0, 88, self.view.frame.size.width, 2)];
+    } else {
+        _progressView = [[UIProgressView alloc] initWithFrame:CGRectMake(0, 64, self.view.frame.size.width, 2)];
+    }
     [self.view addSubview:_progressView];
     
     [_JQWebView addObserver:self forKeyPath:@"estimatedProgress" options:NSKeyValueObservingOptionNew|NSKeyValueObservingOptionOld context:nil];
@@ -88,7 +98,14 @@
     [self.navigationController.navigationBar setBackgroundImage:[UIImage imageNamed:@"NavAlpha0"] forBarMetrics:0];
     [self.navigationController.navigationBar setTitleTextAttributes:@{NSFontAttributeName:[UIFont systemFontOfSize:19],NSForegroundColorAttributeName:[UIColor whiteColor]}];
     [[UINavigationBar appearance] setTintColor:[UIColor whiteColor]];
-    UIImageView *img = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH, 64)];
+    CGFloat height = 0.0;
+    if (iPhoneX) {
+        height = 88;
+    } else {
+        height = 64;
+    }
+    UIImageView *img = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH, height)];
+    [self.view addSubview:_progressView];
     img.image = [UIImage imageNamed:@"navbgview"];
     [self.view addSubview:img];
 }
